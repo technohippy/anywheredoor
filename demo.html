@@ -82,7 +82,7 @@ function init() {
   */
   maskScene = new THREE.Scene();
   //var maskGeometry = new THREE.CircleGeometry(1, 32);
-  var maskGeometry = new THREE.SphereGeometry(5, 32, 32);
+  var maskGeometry = new THREE.SphereGeometry(0.05, 32, 32);
   var maskMaterial = new THREE.MeshBasicMaterial( { color: 0xffffff } );
   hole = new THREE.Mesh( maskGeometry, maskMaterial );
 
