@@ -99,9 +99,7 @@ renderer.clearDepth();
   vrDisplay.getFrameData(vrFrameData);
   vrControls.update();
 
-  mask().then(() => {
-    renderer.render(scene, camera);
-  });
+  mask();
 
   vrDisplay.requestAnimationFrame(update);
 }
@@ -139,24 +137,22 @@ function onClick () {
 
 // https://stackoverflow.com/questions/35023275/three-js-usage-with-stencil-buffer
 function mask() {
-  return new Promise((resolve, reject) => {
-    gl.clearStencil(0);
-    gl.clear(gl.STENCIL_BUFFER_BIT);
-    gl.stencilFunc(gl.ALWAYS, 1, 1);
-    gl.stencilOp(gl.KEEP, gl.REPLACE, gl.REPLACE);
-    gl.colorMask(false, false, false, false);
-    gl.enable(gl.STENCIL_TEST);
-    renderer.render(maskScene, camera);
+  gl.clearStencil(0);
+  gl.clear(gl.STENCIL_BUFFER_BIT);
+  gl.stencilFunc(gl.ALWAYS, 1, 1);
+  gl.stencilOp(gl.KEEP, gl.REPLACE, gl.REPLACE);
+  gl.colorMask(false, false, false, false);
+  gl.enable(gl.STENCIL_TEST);
+  renderer.render(maskScene, camera);
 
-    gl.stencilFunc(gl.EQUAL, 1, 1);
-    gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP);
-    renderer.clearDepth();
-    gl.colorMask(true, true, true, true);
+  gl.stencilFunc(gl.EQUAL, 1, 1);
+  gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP);
+  renderer.clearDepth();
+  gl.colorMask(true, true, true, true);
 
-    resolve();
+  renderer.render(scene, camera);
 
-    gl.disable(gl.STENCIL_TEST);
-  });
+  gl.disable(gl.STENCIL_TEST);
 };
 </script>
 </body>
