@@ -98,8 +98,9 @@ function update() {
   vrControls.update();
 
   renderer.clear();
-  arView.render();
   renderer.clearDepth();
+  arView.render();
+  //renderer.clearDepth();
   maskAndRender();
 
   vrDisplay.requestAnimationFrame(update);
