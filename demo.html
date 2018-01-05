@@ -52,6 +52,9 @@ THREE.ARUtils.getARDisplay().then(function (display) {
 });
 
 function init() {
+  var arDebug = new THREE.ARDebug(vrDisplay);
+  document.body.appendChild(arDebug.getElement());
+
   renderer = new THREE.WebGLRenderer({ alpha: true });
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(window.innerWidth, window.innerHeight);
