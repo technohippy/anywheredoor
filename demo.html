@@ -149,15 +149,13 @@ function mask() {
     gl.stencilFunc(gl.ALWAYS, 1, 1);
     gl.stencilOp(gl.KEEP, gl.REPLACE, gl.REPLACE);
     gl.colorMask(false, false, false, false);
-gl.depthMask(false);
     gl.enable(gl.STENCIL_TEST);
     renderer.render(maskScene, camera);
 
     gl.stencilFunc(gl.EQUAL, 1, 1);
     gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP);
-    renderer.clearDepth();
+    //renderer.clearDepth();
     gl.colorMask(true, true, true, true);
-gl.depthMask(true);
     resolve();
   });
 };
