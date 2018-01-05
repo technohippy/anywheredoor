@@ -33,6 +33,7 @@ var vrFrameData;
 var vrControls;
 var arView;
 
+var gl;
 var canvas;
 var camera;
 var scene;
@@ -59,6 +60,7 @@ function init() {
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.autoClear = false;
+  gl = renderer.context;
   canvas = renderer.domElement;
   document.body.appendChild(canvas);
   scene = new THREE.Scene();
@@ -83,7 +85,6 @@ function init() {
   var maskGeometry = new THREE.SphereGeometry(0.05, 32, 32);
   var maskMaterial = new THREE.MeshBasicMaterial( { color: 0xffffff } );
   hole = new THREE.Mesh( maskGeometry, maskMaterial );
-maskScene.add(hole);
 
   window.addEventListener('resize', onWindowResize, false);
   canvas.addEventListener('touchstart', onClick, false);
