@@ -149,7 +149,7 @@ function maskAndRender() {
   gl.stencilFunc(gl.EQUAL, 1, ~0);
   gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP);
   renderer.clearDepth();
-  gl.colorMask(true, true, true, false);
+  gl.colorMask(true, true, true, true);
   renderer.render(scene, camera);
 
   gl.disable(gl.STENCIL_TEST);
