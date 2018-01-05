@@ -98,10 +98,12 @@ function update() {
   vrControls.update();
 
   renderer.clearDepth();
-  //renderer.render(scene, camera);
+  renderer.render(scene, camera);
+  /*
   mask(maskScene).then(() => {
     renderer.render(scene, camera);
   });
+  */
 
   vrDisplay.requestAnimationFrame(update);
 }
@@ -132,7 +134,7 @@ function onClick () {
   push.transformDirection(dirMtx);
   pos.addScaledVector(push, 0.125);
   var clone = hole.clone();
-  scene.add(clone);
+  maskScene.add(clone);
   clone.position.copy(pos);
   clone.quaternion.copy(ori);
 }
