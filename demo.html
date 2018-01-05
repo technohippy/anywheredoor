@@ -93,7 +93,7 @@ function init() {
 function update() {
   renderer.clearColor();
 
-  arView.render();
+  //arView.render();
 
   camera.updateProjectionMatrix();
 
@@ -154,7 +154,7 @@ function mask() {
 
     gl.stencilFunc(gl.EQUAL, 1, 1);
     gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP);
-    //renderer.clearDepth();
+    renderer.clearDepth();
     gl.colorMask(true, true, true, true);
     resolve();
   });
