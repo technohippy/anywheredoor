@@ -136,8 +136,8 @@ function onClick () {
   push.transformDirection(dirMtx);
   pos.addScaledVector(push, 0.125);
   var clone = hole.clone();
-  maskScene.add(clone);
-  //scene.add(clone);
+  //maskScene.add(clone);
+  scene.add(clone);
   clone.position.copy(pos);
   clone.quaternion.copy(ori);
 }
@@ -176,11 +176,6 @@ var gl = renderer.domElement.getContext('webgl');
 scene.background = new THREE.CubeTextureLoader()
   .setPath( 'textures/cube/Park3Med/' )
   .load( [ 'px.jpg', 'nx.jpg', 'py.jpg', 'ny.jpg', 'pz.jpg', 'nz.jpg' ] );
-
-var geometry = new THREE.BoxGeometry(1, 1, 1);
-var material = new THREE.MeshBasicMaterial({color:0xffff00});
-var cube = new THREE.Mesh(geometry, material);
-//scene.add(cube);
 
 var maskScene = new THREE.Scene();
 var maskGeometry = new THREE.CircleGeometry(1, 32);
