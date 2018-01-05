@@ -81,7 +81,6 @@ function init() {
     .setPath( 'textures/cube/Park3Med/' )
     .load( [ 'px.jpg', 'nx.jpg', 'py.jpg', 'ny.jpg', 'pz.jpg', 'nz.jpg' ] );
   maskScene = new THREE.Scene();
-  //var maskGeometry = new THREE.CircleGeometry(1, 32);
   var maskGeometry = new THREE.SphereGeometry(0.05, 32, 32);
   var maskMaterial = new THREE.MeshBasicMaterial( { color: 0xffffff } );
   hole = new THREE.Mesh( maskGeometry, maskMaterial );
@@ -103,8 +102,6 @@ function update() {
 
   vrControls.update();
 
-  //renderer.clearDepth();
-  //renderer.render(scene, camera);
   mask().then(() => {
     renderer.render(scene, camera);
   });
@@ -139,14 +136,12 @@ function onClick () {
   pos.addScaledVector(push, 0.125);
   var clone = hole.clone();
   maskScene.add(clone);
-  //scene.add(clone);
   clone.position.copy(pos);
   clone.quaternion.copy(ori);
 }
 
 function mask() {
   return new Promise((resolve, reject) => {
-arView.render();
     gl.clearStencil(0);
     gl.clear(gl.STENCIL_BUFFER_BIT);
     gl.stencilFunc(gl.ALWAYS, 1, 1);
@@ -161,6 +156,8 @@ arView.render();
     gl.colorMask(true, true, true, true);
 
     resolve();
+
+    gl.disable(gl.STENCIL_TEST);
   });
 };
 </script>
