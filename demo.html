@@ -26,6 +26,119 @@
 <body>
 <script src="third_party/three.js/three.js"></script>
 <script>
+var vrDisplay;
+var vrFrameData;
+var vrControls;
+var arView;
+
+var canvas;
+var camera;
+var scene;
+var renderer;
+
+var hole;
+var maskScene = new THREE.Scene();
+
+THREE.ARUtils.getARDisplay().then(function (display) {
+  if (display) {
+    vrFrameData = new VRFrameData();
+    vrDisplay = display;
+    init();
+  } else {
+    THREE.ARUtils.displayUnsupportedMessage();
+  }
+});
+
+function init() {
+  renderer = new THREE.WebGLRenderer({ alpha: true });
+  renderer.setPixelRatio(window.devicePixelRatio);
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.autoClear = false;
+  canvas = renderer.domElement;
+  document.body.appendChild(canvas);
+  scene = new THREE.Scene();
+
+  arView = new THREE.ARView(vrDisplay, renderer);
+
+  camera = new THREE.ARPerspectiveCamera(
+    vrDisplay,
+    60,
+    window.innerWidth / window.innerHeight,
+    vrDisplay.depthNear,
+    vrDisplay.depthFar
+  );
+
+  vrControls = new THREE.VRControls(camera);
+
+
+  scene.background = new THREE.CubeTextureLoader()
+    .setPath( 'textures/cube/Park3Med/' )
+    .load( [ 'px.jpg', 'nx.jpg', 'py.jpg', 'ny.jpg', 'pz.jpg', 'nz.jpg' ] );
+  maskScene = new THREE.Scene();
+  var maskGeometry = new THREE.CircleGeometry(1, 32);
+  var maskMaterial = new THREE.MeshBasicMaterial( { color: 0xffffff } );
+  hole = new THREE.Mesh( maskGeometry, maskMaterial );
+
+  window.addEventListener('resize', onWindowResize, false);
+
+  update();
+}
+
+function update() {
+  renderer.clearColor();
+
+  arView.render();
+
+  camera.updateProjectionMatrix();
+
+  vrDisplay.getFrameData(vrFrameData);
+
+  vrControls.update();
+
+  renderer.clearDepth();
+  //renderer.render(scene, camera);
+  mask(maskScene).then(() => {
+    renderer.render(scene, camera);
+  });
+
+  vrDisplay.requestAnimationFrame(update);
+}
+
+function onWindowResize () {
+  console.log('setRenderer size', window.innerWidth, window.innerHeight);
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+}
+
+function onClick () {
+  var pose = vrFrameData.pose;
+  var ori = new THREE.Quaternion(
+    pose.orientation[0],
+    pose.orientation[1],
+    pose.orientation[2],
+    pose.orientation[3]
+  );
+  var pos = new THREE.Vector3(
+    pose.position[0],
+    pose.position[1],
+    pose.position[2]
+  );
+  var dirMtx = new THREE.Matrix4();
+  dirMtx.makeRotationFromQuaternion(ori);
+  var push = new THREE.Vector3(0, 0, -1.0);
+  push.transformDirection(dirMtx);
+  pos.addScaledVector(push, 0.125);
+  var clone = hole.clone();
+  scene.add(clone);
+  clone.position.copy(pos);
+  clone.quaternion.copy(ori);
+}
+
+
+
+
+/*
 var scene = new THREE.Scene();
 var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
 
@@ -52,7 +165,7 @@ maskScene.add( maskCircle );
 
 camera.position.z = 5;
 
-var mask = function(maskScene) {
+function mask(maskScene) {
   return new Promise((resolve, reject) => {
     renderer.clear();
     gl.clearStencil(0);
@@ -90,6 +203,7 @@ var animate = function () {
 };
 
 animate();
+*/
 </script>
 </body>
 </html>
