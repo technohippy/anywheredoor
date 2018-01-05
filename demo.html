@@ -97,6 +97,7 @@ function init() {
     });
     const mesh = new THREE.Mesh( new THREE.BoxGeometry( 3000, 3000, 3000, 1, 1, 1 ), skyBoxMaterial);
     scene.add( mesh );
+    alert(mesh);
   });
   maskScene = new THREE.Scene();
   var maskGeometry = new THREE.CircleGeometry(0.05, 32);
