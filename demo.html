@@ -72,10 +72,11 @@ function init() {
 
   vrControls = new THREE.VRControls(camera);
 
-
+  /*
   scene.background = new THREE.CubeTextureLoader()
     .setPath( 'textures/cube/Park3Med/' )
     .load( [ 'px.jpg', 'nx.jpg', 'py.jpg', 'ny.jpg', 'pz.jpg', 'nz.jpg' ] );
+  */
   maskScene = new THREE.Scene();
   //var maskGeometry = new THREE.CircleGeometry(1, 32);
   var maskGeometry = new THREE.SphereGeometry(5, 32, 32);
