@@ -56,8 +56,7 @@ function init() {
   var arDebug = new THREE.ARDebug(vrDisplay);
   document.body.appendChild(arDebug.getElement());
 
-  //renderer = new THREE.WebGLRenderer({ alpha: true, preserveDrawingBuffer: true });
-  renderer = new THREE.WebGLRenderer({ preserveDrawingBuffer: true });
+  renderer = new THREE.WebGLRenderer({ alpha: true, preserveDrawingBuffer: true });
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.autoClear = false;
@@ -99,7 +98,6 @@ function update() {
 
   renderer.clear();
   renderer.clearDepth();
-  arView.render();
   maskAndRender();
 
   vrDisplay.requestAnimationFrame(update);
@@ -138,6 +136,8 @@ function onClick () {
 
 // https://stackoverflow.com/questions/35023275/three-js-usage-with-stencil-buffer
 function maskAndRender() {
+  arView.render();
+
   gl.clearStencil(0);
   gl.clear(gl.STENCIL_BUFFER_BIT);
   gl.stencilFunc(gl.ALWAYS, 1, ~0);
