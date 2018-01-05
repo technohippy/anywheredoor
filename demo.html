@@ -92,13 +92,13 @@ function init() {
 }
 
 function update() {
-  renderer.clear();
-renderer.clearDepth();
-  arView.render();
   camera.updateProjectionMatrix();
   vrDisplay.getFrameData(vrFrameData);
   vrControls.update();
 
+  renderer.clear();
+  arView.render();
+  renderer.clearDepth();
   maskAndRender();
 
   vrDisplay.requestAnimationFrame(update);
