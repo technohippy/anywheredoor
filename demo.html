@@ -78,9 +78,26 @@ function init() {
 
   vrControls = new THREE.VRControls(camera);
 
+  /*
   scene.background = new THREE.CubeTextureLoader()
     .setPath( 'textures/cube/Park3Med/' )
     .load( [ 'px.jpg', 'nx.jpg', 'py.jpg', 'ny.jpg', 'pz.jpg', 'nz.jpg' ] );
+  */
+  let urls = [ 'px.jpg', 'nx.jpg', 'py.jpg', 'ny.jpg', 'pz.jpg', 'nz.jpg' ];
+  new THREE.CubeTextureLoader().setPath( 'textures/cube/Park3Med/' ).load( urls, (tex) => {
+    const cubeShader = THREE.ShaderLib[ 'cube' ];
+    cubeShader.uniforms[ 'tCube' ].value = tex;
+
+    const skyBoxMaterial = new THREE.ShaderMaterial({
+      fragmentShader: cubeShader.fragmentShader,
+      vertexShader: cubeShader.vertexShader,
+      uniforms: cubeShader.uniforms,
+      depthWrite: false,
+      side: THREE.BackSide
+    });
+    const mesh = new THREE.Mesh( new THREE.BoxGeometry( 3000, 3000, 3000, 1, 1, 1 ), skyBoxMaterial);
+    scene.add( mesh );
+  });
   maskScene = new THREE.Scene();
   var maskGeometry = new THREE.CircleGeometry(0.05, 32);
   var maskMaterial = new THREE.MeshBasicMaterial( { color: 0xffffff, side: THREE.DoubleSide } );
@@ -148,7 +165,7 @@ function maskAndRender() {
 
   gl.stencilFunc(gl.EQUAL, 1, ~0);
   gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP);
-  //renderer.clearDepth();
+  renderer.clearDepth();
   gl.colorMask(true, true, true, true);
   renderer.render(scene, camera);
 
