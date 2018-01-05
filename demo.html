@@ -155,6 +155,7 @@ function mask() {
     renderer.clearDepth();
     gl.colorMask(true, true, true, true);
 
+gl.enable(gl.STENCIL_TEST);
     resolve();
   });
 };
