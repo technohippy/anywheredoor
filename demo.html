@@ -206,6 +206,7 @@ function mask(maskScene) {
     renderer.clearDepth();
     gl.colorMask(true, true, true, true);
     resolve();
+    gl.flush();
   });
 };
 
