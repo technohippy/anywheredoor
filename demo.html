@@ -136,10 +136,10 @@ function onClick () {
 
 // https://stackoverflow.com/questions/35023275/three-js-usage-with-stencil-buffer
 function maskAndRender() {
-  arView.render();
 
   gl.clearStencil(0);
   gl.clear(gl.STENCIL_BUFFER_BIT);
+arView.render();
   gl.stencilFunc(gl.ALWAYS, 1, ~0);
   gl.stencilOp(gl.KEEP, gl.REPLACE, gl.REPLACE);
   gl.colorMask(false, false, false, false);
