@@ -92,6 +92,7 @@ function init() {
 }
 
 function update() {
+gl.disable(gl.STENCIL_TEST);
   renderer.clearColor();
 
   arView.render();
@@ -156,8 +157,6 @@ function mask() {
     gl.colorMask(true, true, true, true);
 
     resolve();
-
-    gl.disable(gl.STENCIL_TEST);
   });
 };
 </script>
