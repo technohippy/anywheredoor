@@ -56,10 +56,12 @@ function init() {
   var arDebug = new THREE.ARDebug(vrDisplay);
   document.body.appendChild(arDebug.getElement());
 
-  renderer = new THREE.WebGLRenderer({ alpha: true, preserveDrawingBuffer: true });
+  //renderer = new THREE.WebGLRenderer({ alpha: true, preserveDrawingBuffer: true });
+  renderer = new THREE.WebGLRenderer({ alpha: true });
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.autoClear = false;
+  renderer.setClearColor(0x000000, 0);
   gl = renderer.context;
   canvas = renderer.domElement;
   document.body.appendChild(canvas);
@@ -138,8 +140,10 @@ function onClick () {
  * https://stackoverflow.com/questions/35023275/three-js-usage-with-stencil-buffer
  */
 function maskAndRender() {
+  // background camera image
   arView.render();
 
+  // mask
   gl.clearStencil(0);
   gl.clear(gl.STENCIL_BUFFER_BIT);
   gl.stencilFunc(gl.ALWAYS, 1, ~0);
@@ -148,12 +152,13 @@ function maskAndRender() {
   gl.enable(gl.STENCIL_TEST);
   renderer.render(maskScene, camera);
 
+  // render with mask
   gl.stencilFunc(gl.EQUAL, 1, ~0);
   gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP);
   renderer.clearDepth();
-  //gl.colorMask(true, true, true, true);
-  gl.colorMask(true, false, false, false);
-  renderer.render(scene, camera);
+  gl.colorMask(true, true, true, true);
+  //renderer.render(scene, camera);
+  arView.render();
 
   gl.disable(gl.STENCIL_TEST);
   gl.flush();
