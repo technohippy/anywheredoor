@@ -78,7 +78,7 @@ function init() {
     .load( [ 'px.jpg', 'nx.jpg', 'py.jpg', 'ny.jpg', 'pz.jpg', 'nz.jpg' ] );
   maskScene = new THREE.Scene();
   //var maskGeometry = new THREE.CircleGeometry(1, 32);
-  var maskGeometry = new THREE.SphereGeometry(1, 32, 32);
+  var maskGeometry = new THREE.SphereGeometry(5, 32, 32);
   var maskMaterial = new THREE.MeshBasicMaterial( { color: 0xffffff } );
   hole = new THREE.Mesh( maskGeometry, maskMaterial );
 
