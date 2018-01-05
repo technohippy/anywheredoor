@@ -33,7 +33,7 @@ var renderer = new THREE.WebGLRenderer({preserveDrawingBuffer:true});
 renderer.autoClear = false;
 renderer.setSize( window.innerWidth, window.innerHeight );
 document.body.appendChild( renderer.domElement );
-var gl = renderer.domElement.getContext('webgl');
+var gl = renderer.context;
 
 scene.background = new THREE.CubeTextureLoader()
   .setPath( 'textures/cube/Park3Med/' )
