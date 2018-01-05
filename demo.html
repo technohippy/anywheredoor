@@ -93,13 +93,13 @@ function init() {
 
 function update() {
   renderer.clear();
-  arView.render();
 renderer.clearDepth();
+  arView.render();
   camera.updateProjectionMatrix();
   vrDisplay.getFrameData(vrFrameData);
   vrControls.update();
 
-  mask();
+  maskAndRender();
 
   vrDisplay.requestAnimationFrame(update);
 }
@@ -136,7 +136,7 @@ function onClick () {
 }
 
 // https://stackoverflow.com/questions/35023275/three-js-usage-with-stencil-buffer
-function mask() {
+function maskAndRender() {
   gl.clearStencil(0);
   gl.clear(gl.STENCIL_BUFFER_BIT);
   gl.stencilFunc(gl.ALWAYS, 1, 1);
@@ -149,7 +149,6 @@ function mask() {
   gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP);
   renderer.clearDepth();
   gl.colorMask(true, true, true, true);
-
   renderer.render(scene, camera);
 
   gl.disable(gl.STENCIL_TEST);
