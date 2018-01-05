@@ -75,11 +75,9 @@ function init() {
 
   vrControls = new THREE.VRControls(camera);
 
-  /*
   scene.background = new THREE.CubeTextureLoader()
     .setPath( 'textures/cube/Park3Med/' )
     .load( [ 'px.jpg', 'nx.jpg', 'py.jpg', 'ny.jpg', 'pz.jpg', 'nz.jpg' ] );
-  */
   maskScene = new THREE.Scene();
   //var maskGeometry = new THREE.CircleGeometry(1, 32);
   var maskGeometry = new THREE.SphereGeometry(0.05, 32, 32);
@@ -104,12 +102,10 @@ function update() {
   vrControls.update();
 
   renderer.clearDepth();
-  renderer.render(scene, camera);
-  /*
+  //renderer.render(scene, camera);
   mask().then(() => {
     renderer.render(scene, camera);
   });
-  */
 
   vrDisplay.requestAnimationFrame(update);
 }
@@ -140,8 +136,8 @@ function onClick () {
   push.transformDirection(dirMtx);
   pos.addScaledVector(push, 0.125);
   var clone = hole.clone();
-  //maskScene.add(clone);
-  scene.add(clone);
+  maskScene.add(clone);
+  //scene.add(clone);
   clone.position.copy(pos);
   clone.quaternion.copy(ori);
 }
