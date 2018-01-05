@@ -153,6 +153,7 @@ function maskAndRender() {
   renderer.render(scene, camera);
 
   gl.disable(gl.STENCIL_TEST);
+  gl.flush();
 };
 </script>
 </body>
