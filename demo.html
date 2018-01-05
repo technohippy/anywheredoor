@@ -94,7 +94,7 @@ function init() {
 function update() {
   renderer.clearColor();
 
-  arView.render();
+  //arView.render();
 
   camera.updateProjectionMatrix();
 
@@ -103,8 +103,10 @@ function update() {
   vrControls.update();
 
   mask().then(() => {
-    renderer.render(scene, camera);
+    arView.render();
+    //renderer.render(scene, camera);
   });
+  renderer.render(scene, camera);
 
   vrDisplay.requestAnimationFrame(update);
 }
@@ -155,7 +157,6 @@ function mask() {
     renderer.clearDepth();
     gl.colorMask(true, true, true, true);
 
-gl.enable(gl.STENCIL_TEST);
     resolve();
   });
 };
