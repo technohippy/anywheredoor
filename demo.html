@@ -136,8 +136,8 @@ function onClick () {
   push.transformDirection(dirMtx);
   pos.addScaledVector(push, 0.125);
   var clone = hole.clone();
-  //maskScene.add(clone);
-  scene.add(clone);
+  maskScene.add(clone);
+  //scene.add(clone);
   clone.position.copy(pos);
   clone.quaternion.copy(ori);
 }
@@ -149,6 +149,7 @@ function mask() {
     gl.stencilFunc(gl.ALWAYS, 1, 1);
     gl.stencilOp(gl.KEEP, gl.REPLACE, gl.REPLACE);
     gl.colorMask(false, false, false, false);
+gl.depthMask(false);
     gl.enable(gl.STENCIL_TEST);
     renderer.render(maskScene, camera);
 
@@ -156,75 +157,10 @@ function mask() {
     gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP);
     renderer.clearDepth();
     gl.colorMask(true, true, true, true);
+gl.depthMask(true);
     resolve();
   });
 };
-
-
-
-
-/*
-var scene = new THREE.Scene();
-var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
-
-var renderer = new THREE.WebGLRenderer({preserveDrawingBuffer:true});
-renderer.autoClear = false;
-renderer.setSize( window.innerWidth, window.innerHeight );
-document.body.appendChild( renderer.domElement );
-var gl = renderer.domElement.getContext('webgl');
-
-scene.background = new THREE.CubeTextureLoader()
-  .setPath( 'textures/cube/Park3Med/' )
-  .load( [ 'px.jpg', 'nx.jpg', 'py.jpg', 'ny.jpg', 'pz.jpg', 'nz.jpg' ] );
-
-var maskScene = new THREE.Scene();
-var maskGeometry = new THREE.CircleGeometry(1, 32);
-var maskMaterial = new THREE.MeshBasicMaterial( { color: 0xffffff } );
-var maskCircle = new THREE.Mesh( maskGeometry, maskMaterial );
-maskScene.add( maskCircle );
-
-camera.position.z = 5;
-
-function mask(maskScene) {
-  return new Promise((resolve, reject) => {
-    renderer.clear();
-    gl.clearStencil(0);
-    gl.clear(gl.STENCIL_BUFFER_BIT);
-    gl.stencilFunc(gl.ALWAYS, 1, 1);
-    gl.stencilOp(gl.KEEP, gl.REPLACE, gl.REPLACE);
-    gl.colorMask(false, false, false, false);
-    gl.enable(gl.STENCIL_TEST);
-    renderer.render(maskScene, camera);
-
-    gl.stencilFunc(gl.EQUAL, 1, 1);
-    gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP);
-    renderer.clearDepth();
-    gl.colorMask(true, true, true, true);
-    resolve();
-    gl.flush();
-  });
-};
-
-var render = function() {
-  mask(maskScene).then(() => {
-    renderer.render(scene, camera);
-  });
-};
-
-var animate = function () {
-  requestAnimationFrame( animate );
-
-  maskCircle.rotation.x += 0.01;
-  maskCircle.rotation.y += 0.01;
-
-  cube.rotation.x -= 0.01;
-  cube.rotation.y -= 0.01;
-
-  render();
-};
-
-animate();
-*/
 </script>
 </body>
 </html>
