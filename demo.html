@@ -133,7 +133,8 @@ function onClick () {
   push.transformDirection(dirMtx);
   pos.addScaledVector(push, 0.125);
   var clone = hole.clone();
-  maskScene.add(clone);
+  //maskScene.add(clone);
+  scene.add(clone);
   clone.position.copy(pos);
   clone.quaternion.copy(ori);
 }
