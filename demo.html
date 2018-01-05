@@ -93,8 +93,8 @@ function init() {
 
 function update() {
   renderer.clear();
-  //renderer.clearColor();
   arView.render();
+renderer.clearDepth();
   camera.updateProjectionMatrix();
   vrDisplay.getFrameData(vrFrameData);
   vrControls.update();
@@ -155,7 +155,7 @@ function mask() {
 
     resolve();
 
-    //gl.disable(gl.STENCIL_TEST);
+    gl.disable(gl.STENCIL_TEST);
   });
 };
 </script>
