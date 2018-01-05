@@ -99,7 +99,7 @@ function update() {
 
   renderer.clearDepth();
   //renderer.render(scene, camera);
-  mask(maskScene).then(() => {
+  mask().then(() => {
     renderer.render(scene, camera);
   });
 
@@ -137,7 +137,7 @@ function onClick () {
   clone.quaternion.copy(ori);
 }
 
-function mask(maskScene) {
+function mask() {
   return new Promise((resolve, reject) => {
     //renderer.clear();
     gl.clearStencil(0);
