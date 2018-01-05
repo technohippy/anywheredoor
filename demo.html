@@ -144,7 +144,6 @@ function onClick () {
 
 function mask() {
   return new Promise((resolve, reject) => {
-    /*
     gl.clearStencil(0);
     gl.clear(gl.STENCIL_BUFFER_BIT);
     gl.stencilFunc(gl.ALWAYS, 1, 1);
@@ -157,7 +156,6 @@ function mask() {
     gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP);
     renderer.clearDepth();
     gl.colorMask(true, true, true, true);
-    */
     resolve();
   });
 };
