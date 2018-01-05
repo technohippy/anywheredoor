@@ -106,6 +106,7 @@ function update() {
     arView.render();
     //renderer.render(scene, camera);
   });
+  gl.disable(gl.STENCIL_TEST);
   renderer.render(scene, camera);
 
   vrDisplay.requestAnimationFrame(update);
