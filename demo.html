@@ -138,30 +138,15 @@ function onClick () {
 
 // https://stackoverflow.com/questions/35023275/three-js-usage-with-stencil-buffer
 function maskAndRender() {
-  renderer.clear();
-  renderer.state.setStencilTest( true );
-  renderer.state.setStencilFunc( gl.ALWAYS, 1, ~0 );
-  renderer.state.setStencilOp(gl.KEEP, gl.REPLACE, gl.REPLACE);
-  renderer.render(maskScene, camera);
-                      
-  renderer.state.setStencilFunc( gl.EQUAL, 1, ~0);
-  renderer.state.setStencilOp( gl.KEEP, gl.KEEP, gl.KEEP );
-  renderer.render(maskScene, camera);
-
-  renderer.state.setStencilTest( false );
-  gl.flush();
-
-
-  /*
   gl.clearStencil(0);
   gl.clear(gl.STENCIL_BUFFER_BIT);
-  gl.stencilFunc(gl.ALWAYS, 1, 1);
+  gl.stencilFunc(gl.ALWAYS, 1, ~0);
   gl.stencilOp(gl.KEEP, gl.REPLACE, gl.REPLACE);
   gl.colorMask(false, false, false, false);
   gl.enable(gl.STENCIL_TEST);
   renderer.render(maskScene, camera);
 
-  gl.stencilFunc(gl.EQUAL, 1, 1);
+  gl.stencilFunc(gl.EQUAL, 1, ~0);
   gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP);
   renderer.clearDepth();
   gl.colorMask(true, true, true, true);
@@ -169,7 +154,6 @@ function maskAndRender() {
 
   gl.disable(gl.STENCIL_TEST);
   gl.flush();
-  */
 };
 </script>
 </body>
