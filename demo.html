@@ -143,8 +143,7 @@ function maskAndRender() {
   gl.clearStencil(0);
   gl.clear(gl.STENCIL_BUFFER_BIT);
   gl.stencilFunc(gl.ALWAYS, 1, ~0);
-  //gl.stencilOp(gl.KEEP, gl.REPLACE, gl.REPLACE);
-  gl.stencilOp(gl.KEEP, gl.KEEP, gl.REPLACE);
+  gl.stencilOp(gl.KEEP, gl.REPLACE, gl.REPLACE);
   gl.colorMask(false, false, false, false);
   gl.enable(gl.STENCIL_TEST);
   renderer.render(maskScene, camera);
@@ -152,7 +151,8 @@ function maskAndRender() {
   gl.stencilFunc(gl.EQUAL, 1, ~0);
   gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP);
   renderer.clearDepth();
-  gl.colorMask(true, true, true, true);
+  //gl.colorMask(true, true, true, true);
+  gl.colorMask(true, false, false, false);
   renderer.render(scene, camera);
 
   gl.disable(gl.STENCIL_TEST);
