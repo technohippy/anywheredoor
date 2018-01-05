@@ -83,6 +83,7 @@ function init() {
   hole = new THREE.Mesh( maskGeometry, maskMaterial );
 
   window.addEventListener('resize', onWindowResize, false);
+  canvas.addEventListener('touchstart', onClick, false);
 
   update();
 }
