@@ -138,6 +138,11 @@ function onClick () {
   var push = new THREE.Vector3(0, 0, -1.0);
   push.transformDirection(dirMtx);
   pos.addScaledVector(push, 0.125);
+
+  var pos2 = new THREE.Vector3(0, 0, -0.2);
+  pos2.applyQuaternion(ori);
+  pos.add(pos2);
+
   var clone = hole.clone();
   maskScene.add(clone);
   clone.position.copy(pos);
