@@ -42,6 +42,7 @@ var vrRenderer;
 
 var hole;
 var maskScene;
+var inHole;
 
 THREE.ARUtils.getARDisplay().then(function (display) {
   if (display) {
@@ -104,11 +105,29 @@ function init() {
 function update() {
   camera.updateProjectionMatrix();
   vrDisplay.getFrameData(vrFrameData);
+
+  var pose = vrFrameData.pose;
+  var pos = new THREE.Vector3(
+    pose.position[0],
+    pose.position[1],
+    pose.position[2]
+  );
+  maskScene.children.forEach(function(child) {
+    if (child.position.distanceTo(pos) < 0.05) {
+      inHole = true;
+    }
+  });
+
   vrControls.update();
 
   renderer.clear();
   renderer.clearDepth();
-  maskAndRender();
+  if (inHole) {
+    renderer.render(scene, camera);
+  }
+  else {
+    maskAndRender();
+  }
 
   vrDisplay.requestAnimationFrame(update);
 }
