@@ -38,11 +38,8 @@ var canvas;
 var camera;
 var scene;
 var renderer;
-var vrRenderer;
 
 var hole;
-var maskScene;
-var inHole;
 
 THREE.ARUtils.getARDisplay().then(function (display) {
   if (display) {
@@ -58,21 +55,10 @@ function init() {
   var arDebug = new THREE.ARDebug(vrDisplay);
   document.body.appendChild(arDebug.getElement());
 
-  /*
-  vrRenderer = new THREE.WebGLRenderer({ alpha: true, preserveDrawingBuffer: true });
-  vrRenderer.setPixelRatio(window.devicePixelRatio);
-  vrRenderer.setSize(window.innerWidth, window.innerHeight);
-  vrRenderer.autoClear = false;
-  vrRenderer.setClearColor(0x000000, 0);
-  document.body.appendChild(vrRenderer.domElement);
-  arView = new THREE.ARView(vrDisplay, vrRenderer);
-  */
-
   renderer = new THREE.WebGLRenderer({ alpha: true, preserveDrawingBuffer: true });
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.autoClear = false;
-  //renderer.setClearColor(0x000000, 0);
   gl = renderer.context;
   canvas = renderer.domElement;
   document.body.appendChild(canvas);
@@ -90,19 +76,12 @@ function init() {
 
   vrControls = new THREE.VRControls(camera);
 
-  /*
-  scene.background = new THREE.CubeTextureLoader()
-    .setPath( 'textures/cube/Park3Med/' )
-    .load( [ 'px.jpg', 'nx.jpg', 'py.jpg', 'ny.jpg', 'pz.jpg', 'nz.jpg' ] );
-  maskScene = new THREE.Scene();
-  */
-  //var maskGeometry = new THREE.CircleGeometry(0.05, 32);
   var maskGeometry = new THREE.CircleGeometry(0.05, 32);
   var maskMaterial = new THREE.MeshBasicMaterial( { color: 0xffffff, side: THREE.DoubleSide } );
   hole = new THREE.Mesh( maskGeometry, maskMaterial );
 
-  window.addEventListener('resize', onWindowResize, false);
   canvas.addEventListener('touchstart', onClick, false);
+  window.addEventListener('resize', onWindowResize, false);
 
   update();
 }
@@ -111,69 +90,14 @@ function update() {
   camera.updateProjectionMatrix();
   vrDisplay.getFrameData(vrFrameData);
 
-  /*
-  var pose = vrFrameData.pose;
-  var pos = new THREE.Vector3(
-    pose.position[0],
-    pose.position[1],
-    pose.position[2]
-  );
-  maskScene.children.forEach(function(child) {
-    if (child.position.distanceTo(pos) < 0.05) {
-      inHole = true;
-    }
-  });
-  */
-
   vrControls.update();
 
   renderer.clear();
   arView.render();
   renderer.clearDepth();
-  //if (inHole) {
-    renderer.render(scene, camera);
-  //}
-  //else {
-  //  maskAndRender();
-  //}
-
-  vrDisplay.requestAnimationFrame(update);
-}
-
-/*
- * https://stackoverflow.com/questions/35023275/three-js-usage-with-stencil-buffer
- */
-/*
-function maskAndRender() {
-  // background camera image
-  arView.render();
-
-  // mask
-  gl.clearStencil(0);
-  gl.clear(gl.STENCIL_BUFFER_BIT);
-  gl.stencilFunc(gl.ALWAYS, 1, ~0);
-  gl.stencilOp(gl.KEEP, gl.REPLACE, gl.REPLACE);
-  gl.colorMask(false, false, false, false);
-  gl.enable(gl.STENCIL_TEST);
-  renderer.render(maskScene, camera);
-
-  // render with mask
-  gl.stencilFunc(gl.EQUAL, 1, ~0);
-  gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP);
-  renderer.clearDepth();
-  gl.colorMask(true, true, true, true);
   renderer.render(scene, camera);
 
-  gl.disable(gl.STENCIL_TEST);
-  gl.flush();
-};
-*/
-
-function onWindowResize () {
-  console.log('setRenderer size', window.innerWidth, window.innerHeight);
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
+  vrDisplay.requestAnimationFrame(update);
 }
 
 function onClick () {
@@ -193,20 +117,19 @@ function onClick () {
   dirMtx.makeRotationFromQuaternion(ori);
   var push = new THREE.Vector3(0, 0, -1.0);
   push.transformDirection(dirMtx);
-  //pos.addScaledVector(push, 0.125);
   pos.addScaledVector(push, 0.325);
-
-  /*
-  var pos2 = new THREE.Vector3(0, 0, -0.2);
-  pos2.applyQuaternion(ori);
-  pos.add(pos2);
-  */
 
   var clone = hole.clone();
   clone.position.copy(pos);
   clone.quaternion.copy(ori);
-  //maskScene.add(clone);
   scene.add(clone);
+}
+
+function onWindowResize () {
+  console.log('setRenderer size', window.innerWidth, window.innerHeight);
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
 }
 </script>
 </body>
