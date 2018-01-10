@@ -33,7 +33,6 @@ var vrFrameData;
 var vrControls;
 var arView;
 
-var gl;
 var canvas;
 var camera;
 var scene;
@@ -59,7 +58,6 @@ function init() {
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.autoClear = false;
-  gl = renderer.context;
   canvas = renderer.domElement;
   document.body.appendChild(canvas);
   scene = new THREE.Scene();
