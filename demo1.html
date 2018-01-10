@@ -85,12 +85,11 @@ function init() {
 }
 
 function update() {
-  camera.updateProjectionMatrix();
+  //camera.updateProjectionMatrix();
   vrDisplay.getFrameData(vrFrameData);
 
   vrControls.update();
 
-  //renderer.clear();
   arView.render();
   renderer.clearDepth();
   renderer.render(scene, camera);
