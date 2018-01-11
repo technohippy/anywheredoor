@@ -58,14 +58,6 @@ function init() {
   var arDebug = new THREE.ARDebug(vrDisplay);
   document.body.appendChild(arDebug.getElement());
 
-  vrRenderer = new THREE.WebGLRenderer({ alpha: true });
-  vrRenderer.setPixelRatio(window.devicePixelRatio);
-  vrRenderer.setSize(window.innerWidth, window.innerHeight);
-  vrRenderer.autoClear = false;
-  vrRenderer.setClearColor(0x000000, 0);
-  document.body.appendChild(vrRenderer.domElement);
-  arView = new THREE.ARView(vrDisplay, vrRenderer);
-
   renderer = new THREE.WebGLRenderer({ alpha: true });
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(window.innerWidth, window.innerHeight);
@@ -75,7 +67,7 @@ function init() {
   document.body.appendChild(canvas);
   scene = new THREE.Scene();
 
-  //arView = new THREE.ARView(vrDisplay, renderer);
+  arView = new THREE.ARView(vrDisplay, renderer);
 
   camera = new THREE.ARPerspectiveCamera(
     vrDisplay,
