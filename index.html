@@ -38,11 +38,13 @@ var canvas;
 var camera;
 var scene;
 var renderer;
+var maskScene;
 var vrRenderer;
+var vrScene;
 
 var hole;
-var maskScene;
 var inHole;
+var holeFrame;
 
 THREE.ARUtils.getARDisplay().then(function (display) {
   if (display) {
@@ -58,23 +60,34 @@ function init() {
   var arDebug = new THREE.ARDebug(vrDisplay);
   document.body.appendChild(arDebug.getElement());
 
-  vrRenderer = new THREE.WebGLRenderer({ alpha: true, preserveDrawingBuffer: true });
+  vrRenderer = new THREE.WebGLRenderer({ alpha: true });
   vrRenderer.setPixelRatio(window.devicePixelRatio);
   vrRenderer.setSize(window.innerWidth, window.innerHeight);
   vrRenderer.autoClear = false;
   vrRenderer.setClearColor(0x000000, 0);
   document.body.appendChild(vrRenderer.domElement);
   arView = new THREE.ARView(vrDisplay, vrRenderer);
+  vrScene = new THREE.Scene();
+  var vrLight = new THREE.AmbientLight(0x444444);
+  vrScene.add(vrLight);
+  vrLight = new THREE.DirectionalLight(0xffffff);
+  vrLight.position.set(0, 1, 0.2);
+  vrScene.add(vrLight);
 
-  renderer = new THREE.WebGLRenderer({ alpha: true, preserveDrawingBuffer: true });
+  renderer = new THREE.WebGLRenderer({ alpha: true });
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.autoClear = false;
-  renderer.setClearColor(0x000000, 0);
-  gl = renderer.context;
   canvas = renderer.domElement;
+  gl = renderer.context;
   document.body.appendChild(canvas);
   scene = new THREE.Scene();
+
+  var light = new THREE.AmbientLight(0x444444);
+  scene.add(light);
+  light = new THREE.DirectionalLight(0xffffff);
+  light.position.set(0, 1, 0.2);
+  scene.add(light);
 
   //arView = new THREE.ARView(vrDisplay, renderer);
 
@@ -92,12 +105,26 @@ function init() {
     .setPath( 'textures/cube/Park3Med/' )
     .load( [ 'px.jpg', 'nx.jpg', 'py.jpg', 'ny.jpg', 'pz.jpg', 'nz.jpg' ] );
   maskScene = new THREE.Scene();
-  var maskGeometry = new THREE.CircleGeometry(0.05, 32);
-  var maskMaterial = new THREE.MeshBasicMaterial( { color: 0xffffff, side: THREE.DoubleSide } );
-  hole = new THREE.Mesh( maskGeometry, maskMaterial );
+  hole = new THREE.Group();
+  var circleMaskGeometry = new THREE.CircleGeometry(0.05, 32);
+  var circleMaskMaterial = new THREE.MeshBasicMaterial( { color: 0xffffff, side: THREE.DoubleSide } );
+  var circle = new THREE.Mesh( circleMaskGeometry, circleMaskMaterial );
+  var cylinderMaskGeometry = new THREE.CylinderGeometry(0.05, 0.05, 0.01, 32, 1, true);
+  var cylinderMaskMaterial = new THREE.MeshBasicMaterial( { color: 0x000000, side: THREE.DoubleSide } );
+//cylinderMaskMaterial = new THREE.MeshBasicMaterial( { color: 0xffffff, side: THREE.DoubleSide } );
+  var cylinder = new THREE.Mesh( cylinderMaskGeometry, cylinderMaskMaterial );
+  cylinder.rotation.x = Math.PI / 2;
+  hole.add(circle);
+  hole.add(cylinder);
 
-  window.addEventListener('resize', onWindowResize, false);
+  var cylinder2Material = new THREE.MeshPhongMaterial( { color: 0xddddff, side: THREE.DoubleSide } );
+  var cylinder2 = new THREE.Mesh(cylinderMaskGeometry, cylinder2Material);  // TODO
+  cylinder2.rotation.x = Math.PI / 2;
+  holeFrame = new THREE.Group();
+  holeFrame.add(cylinder2);
+
   canvas.addEventListener('touchstart', onClick, false);
+  window.addEventListener('resize', onWindowResize, false);
 
   update();
 }
@@ -127,17 +154,59 @@ function update() {
   }
   else {
     maskAndRender();
+
+    vrRenderer.clearDepth();
+    vrRenderer.render(vrScene, camera);
   }
 
   vrDisplay.requestAnimationFrame(update);
 }
 
-function onWindowResize () {
-  console.log('setRenderer size', window.innerWidth, window.innerHeight);
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-}
+/*
+ * https://stackoverflow.com/questions/35023275/three-js-usage-with-stencil-buffer
+ */
+function maskAndRender() {
+  // background camera image
+  arView.render();
+
+  // mask
+  /*
+  gl.clearStencil(0);
+  gl.clear(gl.STENCIL_BUFFER_BIT);
+  gl.stencilFunc(gl.ALWAYS, 1, ~0);
+  gl.stencilOp(gl.KEEP, gl.REPLACE, gl.REPLACE);
+  gl.colorMask(false, false, false, false);
+  gl.enable(gl.STENCIL_TEST);
+  renderer.render(maskScene, camera);
+  */
+  /*
+  gl.clearStencil(1);
+  gl.clear(gl.STENCIL_BUFFER_BIT);
+  gl.stencilFunc(gl.ALWAYS, 1, ~0);
+  gl.stencilOp(gl.KEEP, gl.INVERT, gl.INVERT);
+  gl.colorMask(false, false, false, false);
+  gl.enable(gl.STENCIL_TEST);
+  renderer.render(maskScene, camera);
+  */
+  gl.clearStencil(0);
+  gl.clear(gl.STENCIL_BUFFER_BIT);
+  gl.stencilFunc(gl.ALWAYS, 1, ~0);
+  gl.stencilOp(gl.KEEP, gl.REPLACE, gl.REPLACE);
+  gl.colorMask(false, false, false, false);
+  gl.enable(gl.STENCIL_TEST);
+  renderer.render(maskScene, camera);
+
+  // render with mask
+  gl.stencilFunc(gl.EQUAL, 1, ~0);
+gl.stencilFunc(gl.NOTEQUAL, 1, ~0);
+  gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP);
+  renderer.clearDepth();
+  gl.colorMask(true, true, true, true);
+  renderer.render(scene, camera);
+
+  gl.disable(gl.STENCIL_TEST);
+  gl.flush();
+};
 
 function onClick () {
   var pose = vrFrameData.pose;
@@ -156,44 +225,31 @@ function onClick () {
   dirMtx.makeRotationFromQuaternion(ori);
   var push = new THREE.Vector3(0, 0, -1.0);
   push.transformDirection(dirMtx);
-  pos.addScaledVector(push, 0.125);
+  pos.addScaledVector(push, 0.325);
 
-  var pos2 = new THREE.Vector3(0, 0, -0.2);
-  pos2.applyQuaternion(ori);
-  pos.add(pos2);
+  var cloneHole = hole.clone();
+  cloneHole.position.copy(pos);
+  cloneHole.quaternion.copy(ori);
+  maskScene.add(cloneHole);
 
-  var clone = hole.clone();
-  maskScene.add(clone);
-  clone.position.copy(pos);
-  clone.quaternion.copy(ori);
+  var cloneHoleFrame = holeFrame.clone();
+  cloneHoleFrame.position.copy(pos);
+  cloneHoleFrame.quaternion.copy(ori);
+  scene.add(cloneHoleFrame);
+
+  cloneHoleFrame = holeFrame.clone();
+  cloneHoleFrame.position.copy(pos);
+  cloneHoleFrame.quaternion.copy(ori);
+  vrScene.add(cloneHoleFrame);
 }
 
-/*
- * https://stackoverflow.com/questions/35023275/three-js-usage-with-stencil-buffer
- */
-function maskAndRender() {
-  // background camera image
-  arView.render();
-
-  // mask
-  gl.clearStencil(0);
-  gl.clear(gl.STENCIL_BUFFER_BIT);
-  gl.stencilFunc(gl.ALWAYS, 1, ~0);
-  gl.stencilOp(gl.KEEP, gl.REPLACE, gl.REPLACE);
-  gl.colorMask(false, false, false, false);
-  gl.enable(gl.STENCIL_TEST);
-  renderer.render(maskScene, camera);
-
-  // render with mask
-  gl.stencilFunc(gl.EQUAL, 1, ~0);
-  gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP);
-  renderer.clearDepth();
-  gl.colorMask(true, true, true, true);
-  renderer.render(scene, camera);
-
-  gl.disable(gl.STENCIL_TEST);
-  gl.flush();
-};
+function onWindowResize () {
+  console.log('setRenderer size', window.innerWidth, window.innerHeight);
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  vrRenderer.setSize(window.innerWidth, window.innerHeight);
+}
 </script>
 </body>
 </html>
