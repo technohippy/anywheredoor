@@ -60,6 +60,8 @@ function init() {
   var arDebug = new THREE.ARDebug(vrDisplay);
   document.body.appendChild(arDebug.getElement());
 
+  inHole = false;
+
   vrRenderer = new THREE.WebGLRenderer({ alpha: true });
   vrRenderer.setPixelRatio(window.devicePixelRatio);
   vrRenderer.setSize(window.innerWidth, window.innerHeight);
@@ -111,7 +113,6 @@ function init() {
   var circle = new THREE.Mesh( circleMaskGeometry, circleMaskMaterial );
   var cylinderMaskGeometry = new THREE.CylinderGeometry(0.05, 0.05, 0.01, 32, 1, true);
   var cylinderMaskMaterial = new THREE.MeshBasicMaterial( { color: 0x000000, side: THREE.DoubleSide } );
-//cylinderMaskMaterial = new THREE.MeshBasicMaterial( { color: 0xffffff, side: THREE.DoubleSide } );
   var cylinder = new THREE.Mesh( cylinderMaskGeometry, cylinderMaskMaterial );
   cylinder.rotation.x = Math.PI / 2;
   hole.add(circle);
@@ -141,7 +142,7 @@ function update() {
   );
   maskScene.children.forEach(function(child) {
     if (child.position.distanceTo(pos) < 0.05) {
-      inHole = true;
+      inHole = !inHole;
     }
   });
 
@@ -149,15 +150,10 @@ function update() {
 
   renderer.clear();
   renderer.clearDepth();
-  if (inHole) {
-    renderer.render(scene, camera);
-  }
-  else {
-    maskAndRender();
 
-    vrRenderer.clearDepth();
-    vrRenderer.render(vrScene, camera);
-  }
+  maskAndRender(inHole);
+  vrRenderer.clearDepth();
+  vrRenderer.render(vrScene, camera);
 
   vrDisplay.requestAnimationFrame(update);
 }
@@ -165,29 +161,11 @@ function update() {
 /*
  * https://stackoverflow.com/questions/35023275/three-js-usage-with-stencil-buffer
  */
-function maskAndRender() {
+function maskAndRender(inHole) {
   // background camera image
   arView.render();
 
   // mask
-  /*
-  gl.clearStencil(0);
-  gl.clear(gl.STENCIL_BUFFER_BIT);
-  gl.stencilFunc(gl.ALWAYS, 1, ~0);
-  gl.stencilOp(gl.KEEP, gl.REPLACE, gl.REPLACE);
-  gl.colorMask(false, false, false, false);
-  gl.enable(gl.STENCIL_TEST);
-  renderer.render(maskScene, camera);
-  */
-  /*
-  gl.clearStencil(1);
-  gl.clear(gl.STENCIL_BUFFER_BIT);
-  gl.stencilFunc(gl.ALWAYS, 1, ~0);
-  gl.stencilOp(gl.KEEP, gl.INVERT, gl.INVERT);
-  gl.colorMask(false, false, false, false);
-  gl.enable(gl.STENCIL_TEST);
-  renderer.render(maskScene, camera);
-  */
   gl.clearStencil(0);
   gl.clear(gl.STENCIL_BUFFER_BIT);
   gl.stencilFunc(gl.ALWAYS, 1, ~0);
@@ -197,8 +175,12 @@ function maskAndRender() {
   renderer.render(maskScene, camera);
 
   // render with mask
-  gl.stencilFunc(gl.EQUAL, 1, ~0);
-gl.stencilFunc(gl.NOTEQUAL, 1, ~0);
+  if (inHole) {
+    gl.stencilFunc(gl.NOTEQUAL, 1, ~0);
+  }
+  else {
+    gl.stencilFunc(gl.EQUAL, 1, ~0);
+  }
   gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP);
   renderer.clearDepth();
   gl.colorMask(true, true, true, true);
