@@ -45,6 +45,7 @@ var vrScene;
 var hole;
 var inHole;
 var holeFrame;
+var prevPos;
 
 THREE.ARUtils.getARDisplay().then(function (display) {
   if (display) {
@@ -140,11 +141,23 @@ function update() {
     pose.position[1],
     pose.position[2]
   );
-  maskScene.children.forEach(function(child) {
-    if (child.position.distanceTo(pos) < 0.05) {
-      inHole = !inHole;
-    }
-  });
+  if (prevPos) {
+    maskScene.children.forEach(function(child) {
+      var center = child.position;
+      if (center.distanceTo(pos) < 0.05) {
+        var dirMtx = new THREE.Matrix4();
+        dirMtx.makeRotationFromQuaternion(child.quaternion);
+        var norm = new THREE.Vector3(0, 0, -1);
+        norm.transformDirection(dirMtx);
+        var centerToPos = pos.clone().sub(center);
+        var centerToPrevPos = prevPos.clone().sub(center);
+        var angle1 = norm.angleTo(centerToPos) - Math.PI / 2;
+        var angle2 = norm.angleTo(centerToPrevPos) - Math.PI / 2;
+        if (angle1 * angle2 < 0) inHole = !inHole;
+      }
+    });
+  }
+  prevPos = pos;
 
   vrControls.update();
 
@@ -207,7 +220,8 @@ function onClick () {
   dirMtx.makeRotationFromQuaternion(ori);
   var push = new THREE.Vector3(0, 0, -1.0);
   push.transformDirection(dirMtx);
-  pos.addScaledVector(push, 0.325);
+  //pos.addScaledVector(push, 0.325);
+  pos.addScaledVector(push, 0.225);
 
   var cloneHole = hole.clone();
   cloneHole.position.copy(pos);
