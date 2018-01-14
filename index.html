@@ -182,8 +182,7 @@ function maskAndRender(inHole) {
   gl.clearStencil(0);
   gl.clear(gl.STENCIL_BUFFER_BIT);
   gl.stencilFunc(gl.ALWAYS, 1, ~0);
-  //gl.stencilOp(gl.KEEP, gl.REPLACE, gl.REPLACE);
-  gl.stencilOp(gl.KEEP, gl.INVERT, gl.INVERT);
+  gl.stencilOp(gl.KEEP, gl.REPLACE, gl.REPLACE);
   gl.colorMask(false, false, false, false);
   gl.enable(gl.STENCIL_TEST);
   renderer.render(maskScene, camera);
