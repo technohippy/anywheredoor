@@ -139,12 +139,10 @@ function update() {
 
   vrControls.update();
 
-  //checkHoles();
-
   renderer.clear();
   renderer.clearDepth();
 
-  maskAndRender(inHole);
+  maskAndRender();
   vrRenderer.clearDepth();
   vrRenderer.render(vrScene, camera);
 
@@ -180,7 +178,7 @@ function checkHoles() {
 /*
  * https://stackoverflow.com/questions/35023275/three-js-usage-with-stencil-buffer
  */
-function maskAndRender(inHole) {
+function maskAndRender() {
   // background camera image
   arView.render();
 
