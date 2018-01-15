@@ -109,13 +109,10 @@ function init() {
     .load( [ 'px.jpg', 'nx.jpg', 'py.jpg', 'ny.jpg', 'pz.jpg', 'nz.jpg' ] );
   maskScene = new THREE.Scene();
   hole = new THREE.Group();
-  //var circleMaskGeometry = new THREE.CircleGeometry(0.05, 32);
-var circleMaskGeometry = new THREE.CylinderGeometry(0.05, 0.05, 0.01, 32, 1);
+  var circleMaskGeometry = new THREE.CircleGeometry(0.05, 32);
   var circleMaskMaterial = new THREE.MeshBasicMaterial( { color: 0xffffff, side: THREE.DoubleSide } );
   var circle = new THREE.Mesh( circleMaskGeometry, circleMaskMaterial );
-circle.rotation.x = Math.PI / 2;
   var cylinderMaskGeometry = new THREE.CylinderGeometry(0.05, 0.05, 0.01, 32, 1, true);
-cylinderMaskGeometry = new THREE.CylinderGeometry(0.05, 0.05, 0.02, 32, 1, true);
   var cylinderMaskMaterial = new THREE.MeshBasicMaterial( { color: 0x000000, side: THREE.DoubleSide } );
   var cylinder = new THREE.Mesh( cylinderMaskGeometry, cylinderMaskMaterial );
   cylinder.rotation.x = Math.PI / 2;
