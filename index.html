@@ -38,11 +38,14 @@ var canvas;
 var camera;
 var scene;
 var renderer;
+var maskScene;
 var vrRenderer;
+var vrScene;
 
 var hole;
-var maskScene;
 var inHole;
+var holeFrame;
+var prevPos;
 
 THREE.ARUtils.getARDisplay().then(function (display) {
   if (display) {
@@ -58,23 +61,36 @@ function init() {
   var arDebug = new THREE.ARDebug(vrDisplay);
   document.body.appendChild(arDebug.getElement());
 
-  vrRenderer = new THREE.WebGLRenderer({ alpha: true, preserveDrawingBuffer: true });
+  inHole = false;
+
+  vrRenderer = new THREE.WebGLRenderer({ alpha: true });
   vrRenderer.setPixelRatio(window.devicePixelRatio);
   vrRenderer.setSize(window.innerWidth, window.innerHeight);
   vrRenderer.autoClear = false;
   vrRenderer.setClearColor(0x000000, 0);
   document.body.appendChild(vrRenderer.domElement);
   arView = new THREE.ARView(vrDisplay, vrRenderer);
+  vrScene = new THREE.Scene();
+  var vrLight = new THREE.AmbientLight(0x444444);
+  vrScene.add(vrLight);
+  vrLight = new THREE.DirectionalLight(0xffffff);
+  vrLight.position.set(0, 1, 0.2);
+  vrScene.add(vrLight);
 
-  renderer = new THREE.WebGLRenderer({ alpha: true, preserveDrawingBuffer: true });
+  renderer = new THREE.WebGLRenderer({ alpha: true });
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.autoClear = false;
-  renderer.setClearColor(0x000000, 0);
-  gl = renderer.context;
   canvas = renderer.domElement;
+  gl = renderer.context;
   document.body.appendChild(canvas);
   scene = new THREE.Scene();
+
+  var light = new THREE.AmbientLight(0x444444);
+  scene.add(light);
+  light = new THREE.DirectionalLight(0xffffff);
+  light.position.set(0, 1, 0.2);
+  scene.add(light);
 
   //arView = new THREE.ARView(vrDisplay, renderer);
 
@@ -92,12 +108,25 @@ function init() {
     .setPath( 'textures/cube/Park3Med/' )
     .load( [ 'px.jpg', 'nx.jpg', 'py.jpg', 'ny.jpg', 'pz.jpg', 'nz.jpg' ] );
   maskScene = new THREE.Scene();
-  var maskGeometry = new THREE.CircleGeometry(0.05, 32);
-  var maskMaterial = new THREE.MeshBasicMaterial( { color: 0xffffff, side: THREE.DoubleSide } );
-  hole = new THREE.Mesh( maskGeometry, maskMaterial );
+  hole = new THREE.Group();
+  var circleMaskGeometry = new THREE.CircleGeometry(0.05, 32);
+  var circleMaskMaterial = new THREE.MeshBasicMaterial( { color: 0xffffff, side: THREE.DoubleSide } );
+  var circle = new THREE.Mesh( circleMaskGeometry, circleMaskMaterial );
+  var cylinderMaskGeometry = new THREE.CylinderGeometry(0.05, 0.05, 0.01, 32, 1, true);
+  var cylinderMaskMaterial = new THREE.MeshBasicMaterial( { color: 0x000000, side: THREE.DoubleSide } );
+  var cylinder = new THREE.Mesh( cylinderMaskGeometry, cylinderMaskMaterial );
+  cylinder.rotation.x = Math.PI / 2;
+  hole.add(circle);
+  hole.add(cylinder);
 
-  window.addEventListener('resize', onWindowResize, false);
+  var cylinder2Material = new THREE.MeshPhongMaterial( { color: 0xddddff, side: THREE.DoubleSide } );
+  var cylinder2 = new THREE.Mesh(cylinderMaskGeometry, cylinder2Material);  // TODO
+  cylinder2.rotation.x = Math.PI / 2;
+  holeFrame = new THREE.Group();
+  holeFrame.add(cylinder2);
+
   canvas.addEventListener('touchstart', onClick, false);
+  window.addEventListener('resize', onWindowResize, false);
 
   update();
 }
@@ -106,66 +135,41 @@ function update() {
   camera.updateProjectionMatrix();
   vrDisplay.getFrameData(vrFrameData);
 
-  var pose = vrFrameData.pose;
-  var pos = new THREE.Vector3(
-    pose.position[0],
-    pose.position[1],
-    pose.position[2]
-  );
-  maskScene.children.forEach(function(child) {
-    if (child.position.distanceTo(pos) < 0.05) {
-      inHole = true;
-    }
-  });
+  checkHoles();
 
   vrControls.update();
 
   renderer.clear();
   renderer.clearDepth();
-  if (inHole) {
-    renderer.render(scene, camera);
-  }
-  else {
-    maskAndRender();
-  }
+
+  maskAndRender();
+  vrRenderer.clearDepth();
+  vrRenderer.render(vrScene, camera);
 
   vrDisplay.requestAnimationFrame(update);
 }
 
-function onWindowResize () {
-  console.log('setRenderer size', window.innerWidth, window.innerHeight);
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-}
-
-function onClick () {
-  var pose = vrFrameData.pose;
-  var ori = new THREE.Quaternion(
-    pose.orientation[0],
-    pose.orientation[1],
-    pose.orientation[2],
-    pose.orientation[3]
-  );
-  var pos = new THREE.Vector3(
-    pose.position[0],
-    pose.position[1],
-    pose.position[2]
-  );
-  var dirMtx = new THREE.Matrix4();
-  dirMtx.makeRotationFromQuaternion(ori);
-  var push = new THREE.Vector3(0, 0, -1.0);
-  push.transformDirection(dirMtx);
-  pos.addScaledVector(push, 0.125);
-
-  var pos2 = new THREE.Vector3(0, 0, -0.2);
-  pos2.applyQuaternion(ori);
-  pos.add(pos2);
-
-  var clone = hole.clone();
-  maskScene.add(clone);
-  clone.position.copy(pos);
-  clone.quaternion.copy(ori);
+function checkHoles() {
+  var pose = getCurrentPose();
+  if (prevPos) {
+    var invert = false;
+    maskScene.children.forEach(function(child) {
+      var center = child.position;
+      if (center.distanceTo(pose.position) < 0.05) {
+        var dirMtx = new THREE.Matrix4();
+        dirMtx.makeRotationFromQuaternion(child.quaternion);
+        var norm = new THREE.Vector3(0, 0, -1);
+        norm.transformDirection(dirMtx);
+        var centerToPos = pose.position.clone().sub(center);
+        var centerToPrevPos = prevPos.clone().sub(center);
+        var angle1 = norm.angleTo(centerToPos) - Math.PI / 2;
+        var angle2 = norm.angleTo(centerToPrevPos) - Math.PI / 2;
+        if (angle1 * angle2 <= 0) invert = true;
+      }
+    });
+    if (invert) inHole = !inHole;
+  }
+  prevPos = pose.position;
 }
 
 /*
@@ -185,7 +189,12 @@ function maskAndRender() {
   renderer.render(maskScene, camera);
 
   // render with mask
-  gl.stencilFunc(gl.EQUAL, 1, ~0);
+  if (inHole) {
+    gl.stencilFunc(gl.NOTEQUAL, 1, ~0);
+  }
+  else {
+    gl.stencilFunc(gl.EQUAL, 1, ~0);
+  }
   gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP);
   renderer.clearDepth();
   gl.colorMask(true, true, true, true);
@@ -194,6 +203,55 @@ function maskAndRender() {
   gl.disable(gl.STENCIL_TEST);
   gl.flush();
 };
+
+function getCurrentPose() {
+  var ret = {}
+  ret.pose = vrFrameData.pose;
+  ret.orientation = new THREE.Quaternion(
+    ret.pose.orientation[0],
+    ret.pose.orientation[1],
+    ret.pose.orientation[2],
+    ret.pose.orientation[3]
+  );
+  ret.position = new THREE.Vector3(
+    ret.pose.position[0],
+    ret.pose.position[1],
+    ret.pose.position[2]
+  );
+  ret.directionMatrix = new THREE.Matrix4();
+  ret.directionMatrix.makeRotationFromQuaternion(ret.orientation);
+  return ret;
+}
+
+function onClick () {
+  var pose = getCurrentPose();
+  var push = new THREE.Vector3(0, 0, -1.0);
+  push.transformDirection(pose.directionMatrix);
+  pose.position.addScaledVector(push, 0.225);
+
+  var cloneHole = hole.clone();
+  cloneHole.position.copy(pose.position);
+  cloneHole.quaternion.copy(pose.orientation);
+  maskScene.add(cloneHole);
+
+  var cloneHoleFrame = holeFrame.clone();
+  cloneHoleFrame.position.copy(pose.position);
+  cloneHoleFrame.quaternion.copy(pose.orientation);
+  scene.add(cloneHoleFrame);
+
+  cloneHoleFrame = holeFrame.clone();
+  cloneHoleFrame.position.copy(pose.position);
+  cloneHoleFrame.quaternion.copy(pose.orientation);
+  vrScene.add(cloneHoleFrame);
+}
+
+function onWindowResize () {
+  console.log('setRenderer size', window.innerWidth, window.innerHeight);
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  vrRenderer.setSize(window.innerWidth, window.innerHeight);
+}
 </script>
 </body>
 </html>
