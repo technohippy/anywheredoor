@@ -137,7 +137,7 @@ function update() {
 
   checkHoles();
 
-  vrControls.update();
+  //vrControls.update();
 
   renderer.clear();
   renderer.clearDepth();
@@ -147,6 +147,7 @@ function update() {
   vrRenderer.render(vrScene, camera);
 
   vrDisplay.requestAnimationFrame(update);
+  vrControls.update();
 }
 
 function checkHoles() {
@@ -168,7 +169,7 @@ function checkHoles() {
       }
     });
     if (invert) {
-      //inHole = !inHole;
+      inHole = !inHole;
     }
   }
   prevPos = pose.position;
