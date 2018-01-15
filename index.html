@@ -44,7 +44,6 @@ var vrScene;
 
 var hole;
 var inHole;
-var invert;
 var holeFrame;
 var prevPos;
 
@@ -63,7 +62,6 @@ function init() {
   document.body.appendChild(arDebug.getElement());
 
   inHole = false;
-  invert = false;
 
   vrRenderer = new THREE.WebGLRenderer({ alpha: true });
   vrRenderer.setPixelRatio(window.devicePixelRatio);
@@ -149,10 +147,6 @@ function update() {
   vrRenderer.render(vrScene, camera);
 
   vrDisplay.requestAnimationFrame(update);
-
-  if (invert) {
-    inHole = !inHole;
-  }
 }
 
 function checkHoles() {
@@ -173,11 +167,9 @@ function checkHoles() {
         if (angle1 * angle2 <= 0) invert = true;
       }
     });
-    /*
     if (invert) {
       inHole = !inHole;
     }
-    */
   }
   prevPos = pose.position;
 }
