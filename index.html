@@ -129,6 +129,8 @@ function init() {
   window.addEventListener('resize', onWindowResize, false);
 
   update();
+
+  initRecognizer();
 }
 
 function update() {
@@ -226,6 +228,13 @@ function getCurrentPose() {
 }
 
 function onClick () {
+  /*
+  if (!recording) {
+    recording = true;
+    rec.start();
+  }
+  */
+
   var pose = getCurrentPose();
   var push = new THREE.Vector3(0, 0, -1.0);
   push.transformDirection(pose.directionMatrix);
@@ -253,6 +262,27 @@ function onWindowResize () {
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
   vrRenderer.setSize(window.innerWidth, window.innerHeight);
+}
+
+var rec;
+var recording = false;
+function initRecognizer() {
+  rec = new webkitSpeechRecognition();
+  rec.continuous = true;
+  rec.interimResults = false;
+  rec.lang = 'en';
+  rec.onresult = function(evt) {
+    for (var i = resultIndex; i < evt.results.length; ++i) {
+      if (evt.results.final) {
+        var command = evt.results[i][0].transcript;
+        alert(command);
+        //if (0 <= command.indexOf('open')) {
+          onClick();
+        //}
+      }
+    }
+  };
+  rec.start();
 }
 </script>
 </body>
