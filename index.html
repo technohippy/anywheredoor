@@ -170,8 +170,11 @@ function checkHoles() {
     if (invert) {
       inHole = !inHole;
     }
+    prevPos.copy(pose.position);
   }
-  prevPos = pose.position;
+  else {
+    prevPos = pose.position.clone();
+  }
 }
 
 /*
