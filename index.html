@@ -150,22 +150,17 @@ function update() {
 }
 
 function checkHoles() {
-  var pose = vrFrameData.pose;
-  var pos = new THREE.Vector3(
-    pose.position[0],
-    pose.position[1],
-    pose.position[2]
-  );
+  var pose = getCurrentPose();
   if (prevPos) {
     var invert = false;
     maskScene.children.forEach(function(child) {
       var center = child.position;
-      if (center.distanceTo(pos) < 0.05) {
+      if (center.distanceTo(pose.position) < 0.05) {
         var dirMtx = new THREE.Matrix4();
         dirMtx.makeRotationFromQuaternion(child.quaternion);
         var norm = new THREE.Vector3(0, 0, -1);
         norm.transformDirection(dirMtx);
-        var centerToPos = pos.clone().sub(center);
+        var centerToPos = pose.position.clone().sub(center);
         var centerToPrevPos = prevPos.clone().sub(center);
         var angle1 = norm.angleTo(centerToPos) - Math.PI / 2;
         var angle2 = norm.angleTo(centerToPrevPos) - Math.PI / 2;
@@ -174,7 +169,7 @@ function checkHoles() {
     });
   }
   if (invert) inHole = !inHole;
-  prevPos = pos;
+  prevPos = pose.position;
 }
 
 /*
@@ -209,38 +204,44 @@ function maskAndRender() {
   gl.flush();
 };
 
+function getCurrentPose() {
+  var ret = {}
+  ret.pose = vrFrameData.pose;
+  ret.orientation = new THREE.Quaternion(
+    ret.pose.orientation[0],
+    ret.pose.orientation[1],
+    ret.pose.orientation[2],
+    ret.pose.orientation[3]
+  );
+  ret.position = new THREE.Vector3(
+    ret.pose.position[0],
+    ret.pose.position[1],
+    ret.pose.position[2]
+  );
+  ret.directionMatrix = new THREE.Matrix4();
+  ret.directionMatrix.makeRotationFromQuaternion(ret.orientation);
+  return ret;
+}
+
 function onClick () {
-  var pose = vrFrameData.pose;
-  var ori = new THREE.Quaternion(
-    pose.orientation[0],
-    pose.orientation[1],
-    pose.orientation[2],
-    pose.orientation[3]
-  );
-  var pos = new THREE.Vector3(
-    pose.position[0],
-    pose.position[1],
-    pose.position[2]
-  );
-  var dirMtx = new THREE.Matrix4();
-  dirMtx.makeRotationFromQuaternion(ori);
+  var pose = getCurrentPose();
   var push = new THREE.Vector3(0, 0, -1.0);
-  push.transformDirection(dirMtx);
-  pos.addScaledVector(push, 0.225);
+  push.transformDirection(pose.directionMatrix);
+  pose.position.addScaledVector(push, 0.225);
 
   var cloneHole = hole.clone();
-  cloneHole.position.copy(pos);
-  cloneHole.quaternion.copy(ori);
+  cloneHole.position.copy(pose.position);
+  cloneHole.quaternion.copy(pose.orientation);
   maskScene.add(cloneHole);
 
   var cloneHoleFrame = holeFrame.clone();
-  cloneHoleFrame.position.copy(pos);
-  cloneHoleFrame.quaternion.copy(ori);
+  cloneHoleFrame.position.copy(pose.position);
+  cloneHoleFrame.quaternion.copy(pose.orientation);
   scene.add(cloneHoleFrame);
 
   cloneHoleFrame = holeFrame.clone();
-  cloneHoleFrame.position.copy(pos);
-  cloneHoleFrame.quaternion.copy(ori);
+  cloneHoleFrame.position.copy(pose.position);
+  cloneHoleFrame.quaternion.copy(pose.orientation);
   vrScene.add(cloneHoleFrame);
 }
 
