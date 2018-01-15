@@ -44,6 +44,7 @@ var vrScene;
 
 var hole;
 var inHole;
+var invert;
 var holeFrame;
 var prevPos;
 
@@ -62,6 +63,7 @@ function init() {
   document.body.appendChild(arDebug.getElement());
 
   inHole = false;
+  invert = false;
 
   vrRenderer = new THREE.WebGLRenderer({ alpha: true });
   vrRenderer.setPixelRatio(window.devicePixelRatio);
@@ -117,7 +119,7 @@ function init() {
   var cylinder = new THREE.Mesh( cylinderMaskGeometry, cylinderMaskMaterial );
   cylinder.rotation.x = Math.PI / 2;
   hole.add(circle);
-  //hole.add(cylinder);
+  hole.add(cylinder);
 
   var cylinder2Material = new THREE.MeshPhongMaterial( { color: 0xddddff, side: THREE.DoubleSide } );
   var cylinder2 = new THREE.Mesh(cylinderMaskGeometry, cylinder2Material);  // TODO
@@ -147,6 +149,10 @@ function update() {
   vrRenderer.render(vrScene, camera);
 
   vrDisplay.requestAnimationFrame(update);
+
+  if (invert) {
+    inHole = !inHole;
+  }
 }
 
 function checkHoles() {
@@ -167,9 +173,11 @@ function checkHoles() {
         if (angle1 * angle2 <= 0) invert = true;
       }
     });
+    /*
     if (invert) {
       inHole = !inHole;
     }
+    */
   }
   prevPos = pose.position;
 }
