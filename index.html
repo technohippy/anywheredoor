@@ -169,7 +169,7 @@ function checkHoles() {
         var centerToPrevPos = prevPos.clone().sub(center);
         var angle1 = norm.angleTo(centerToPos) - Math.PI / 2;
         var angle2 = norm.angleTo(centerToPrevPos) - Math.PI / 2;
-        if (angle1 * angle2 < 0) invert = true;
+        if (angle1 * angle2 <= 0) invert = true;
       }
     });
   }
