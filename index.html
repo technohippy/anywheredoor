@@ -167,7 +167,9 @@ function checkHoles() {
         if (angle1 * angle2 <= 0) invert = true;
       }
     });
-    if (invert) inHole = !inHole;
+    if (invert) {
+      inHole = !inHole;
+    }
   }
   prevPos = pose.position;
 }
