@@ -80,6 +80,7 @@ function init() {
   renderer = new THREE.WebGLRenderer({ alpha: true });
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setClearColor(0x000000, 0.0);
   renderer.autoClear = false;
   canvas = renderer.domElement;
   gl = renderer.context;
