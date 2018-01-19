@@ -63,7 +63,6 @@ function init() {
 
   inHole = false;
 
-  /*
   vrRenderer = new THREE.WebGLRenderer({ alpha: true });
   vrRenderer.setPixelRatio(window.devicePixelRatio);
   vrRenderer.setSize(window.innerWidth, window.innerHeight);
@@ -77,7 +76,6 @@ function init() {
   vrLight = new THREE.DirectionalLight(0xffffff);
   vrLight.position.set(0, 1, 0.2);
   vrScene.add(vrLight);
-  */
 
   renderer = new THREE.WebGLRenderer({ alpha: true });
   renderer.setPixelRatio(window.devicePixelRatio);
@@ -95,7 +93,7 @@ function init() {
   light.position.set(0, 1, 0.2);
   scene.add(light);
 
-  arView = new THREE.ARView(vrDisplay, renderer);
+  //arView = new THREE.ARView(vrDisplay, renderer);
 
   camera = new THREE.ARPerspectiveCamera(
     vrDisplay,
@@ -146,10 +144,8 @@ function update() {
   renderer.clearDepth();
 
   maskAndRender();
-  /*
   vrRenderer.clearDepth();
   vrRenderer.render(vrScene, camera);
-  */
 
   vrDisplay.requestAnimationFrame(update);
 }
@@ -246,12 +242,10 @@ function onClick () {
   cloneHoleFrame.quaternion.copy(pose.orientation);
   scene.add(cloneHoleFrame);
 
-  /*
   cloneHoleFrame = holeFrame.clone();
   cloneHoleFrame.position.copy(pose.position);
   cloneHoleFrame.quaternion.copy(pose.orientation);
   vrScene.add(cloneHoleFrame);
-  */
 }
 
 function onWindowResize () {
@@ -259,9 +253,7 @@ function onWindowResize () {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
-  /*
   vrRenderer.setSize(window.innerWidth, window.innerHeight);
-  */
 }
 </script>
 </body>
